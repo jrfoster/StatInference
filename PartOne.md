@@ -1,0 +1,15 @@
+# Investigating the Central Limit Theorem Using the Exponential Distribution
+Jason Foster  
+
+##Overview
+
+The Central Limit Theorem (CLT) states that if we repeatedly take independent random samples of size n from any population, then, when n is large, the distribution of the sample means will approach a normal distribution.  In this report, we investigate the CLT by simulation using R to generate independent samples of the exponential distribution.
+
+##Simulations
+
+The exponential distribution is defined as follows:
+
+$$
+f(x) = \lambda e ^ {- \lambda x} \qquad x > 0, \lambda > 0
+$$
+
