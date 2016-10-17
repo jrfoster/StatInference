@@ -35,9 +35,7 @@ simulations <- data.frame(t(replicate(numSims, rexp(n, lambda)))) %>%
 
 ##Comparison of Theoretical and Sample Mean
 
-If the CLT holds true, then what we should see is the distribution of the mean of our simulated 40 exponentials should resemble a normal distribution with mean $\frac{1}{\lambda}$. 
-
-The following plot shows the distribution of sample means along with its density curve.  The red vertical line shows the distribution's mean.
+If the CLT holds true, then what we should see is the distribution of the mean of our simulated 40 exponentials should resemble a normal distribution with mean $\frac{1}{\lambda}$. The following plot shows the distribution of sample means along with its density curve.  The red vertical line shows the distribution's mean.
 
 ```{r theoretical_mean_vs_sample_mean, echo=FALSE, fig.align='center', fig.height=3}
 ggplot(simulations, aes(x=xBar)) +
@@ -49,14 +47,17 @@ ggplot(simulations, aes(x=xBar)) +
   theme_bw(base_size = 10)
 ```
 
-We calcluate the theoretical mean of the exponential distribution with the formula $\frac{1}{\lambda}$. To see how this compares with the sample mean, lets calculate both and compare them.
+We calcluate the theoretical mean of the exponential distribution with the formula $\frac{1}{\lambda}$. To see how this compares with the sample mean, lets calculate both and compare.
 
 ```{r sample_mean, echo=FALSE}
+confInt <- t.test(simulations$xBar)$conf.int
 sampleMean <- mean(simulations$xBar)
 data.frame(Mean = c(sampleMean, mu), row.names = c("Sample", "Theoretical"))
+lowerCI <- confInt[1]
+upperCI <- confInt[2]
 ```
 
-As you can see, the sample distribution mean of `r sampleMean` is very close to the theoretical mean of `r 1/.2`.
+As you can see, the sample distribution mean of `r sampleMean` is very close to the theoretical mean of `r 1/.2`. The 95% confidence interval is [`r lowerCI`, `r upperCI`]. 
 
 ##Comparison of Theoretical and Sample Variance
 
@@ -173,10 +174,13 @@ ggplot(simulations, aes(x=xBar)) +
   theme_bw(base_size = 10)
 ```
 
-This code calculates and displays the theoretical and sample means
+This code calculates and displays the theoretical and sample means and the confidence interval
 ```{r eval=FALSE}
+confInt <- t.test(simulations$xBar)$conf.int
 sampleMean <- mean(simulations$xBar)
 data.frame(Mean = c(sampleMean, mu), row.names = c("Sample", "Theoretical"))
+lowerCI <- confInt[1]
+upperCI <- confInt[2]
 ```
 
 This code calculates and displays the theoretical and sample variance
