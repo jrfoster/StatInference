@@ -1,0 +1,117 @@
+---
+title: "Tooth Growth Analysis"
+author: "jrfoster"
+date: "October 19, 2016"
+bibliography: "bibliography.bib"
+biblio-style: "BibTeX"
+geometry: margin=.9in
+output: 
+  pdf_document:
+    includes:
+        in_header: mystyle.sty 
+---
+
+```{r setup_dataload, echo=FALSE}
+suppressMessages(library(datasets))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(knitr))
+
+data("ToothGrowth")
+```
+
+##Overview
+
+In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth.  Note that all R code uesd to produce the calculations and plots is included the Appendix but not displayed in the narrative for the sake of brevity.
+
+##Exploratory Data Analysis
+
+The raw data consist of 60 observations of 3 variables: len, supp and dose.  Len is the mean length, in microns, of the subject odontoblast. Supp is the supplement type the subject ingested, either orange juice (OJ) or ascorbic acid (VC).  Dose is the amount of supplement, in milligrams, the subject ingested (either .5, 1 or 2).  It should be noted that the original data included gender, however Crampton showed in his analysis that the effect of gender could be neglected [@Bliss1].  Lets take a quick look at the dataset.
+
+```{r quick_look, echo=FALSE}
+str(ToothGrowth)
+paste("Complete Cases:", sum(complete.cases(ToothGrowth)))
+```
+
+Fromt this we can see that we have 100% complete cases and that we will need to treat dose as discrete (factor) instead of as  continuous (numeric) variable.  Lets take a look to see if any relationships or patterns emerge from the data itself.
+
+```{r len_over_dose, fig.align='center', fig.height=3, echo=FALSE}
+ToothGrowth %>%
+  ggplot(aes(x=factor(dose), y=len, group=supp, color=supp)) +
+  ggtitle("Odontoblast Length as a Function of Dose\n") +
+  labs(x = "Dosage (mg)", y = "Odontoblasts Length (microns)", color="Supplement") +
+  geom_point() +
+  stat_summary(aes(group=supp, color=supp), fun.y=mean, geom="line") +
+  theme_bw(base_size = 10)
+```
+
+From this plot, we can see a couple of interesting things.  First, there appears to be a fairly strong relationship between odontoblast length and dose in that as dose increases, so does odontoblast length.  Second, there appears to be generally a greater odontoblast length for the subjects receiving orange juice than for subjects receiving ascorbic acid at the .5mg and 1mg dosages, but not for the 2mg dosage.
+
+Lets also take a little closer look at some basic statistics from this raw data.
+
+```{r basic_stats, echo=FALSE}
+stat1 <- ToothGrowth %>%
+  group_by(dose, supp) %>%
+  summarize(mean = mean(len), median=median(len), var=var(len))
+kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Median", "Mean", "Variance"))
+```
+
+From this data we can see that the variances for the various dose and supplement combinations are generally not the same.  Its interesting that when comparing variance between the dosage groups, there is greater variance in odontoblast length for the subjects on orange juice at the .5mg and 1mg dosage and greater variance for the subjects on 2mg ascorbic acid.  Its also interesting that the means are identical for the 2mg dosage groups, which coincides with the 'ceiling' noted by [@Bliss1].
+
+##Analysis
+
+Given what we saw with the the plot and the underlying means and variances of the various populations, we will perform some hypothesis testing to identify the effect of dose and supplement on tooth growth.  Generally speaking, the null hypothesis for each of these analyses is that the difference in the mean length of odontoblast cells in the two groups being compared is 0.
+
+###Analysis of Tooth Growth by Dose
+
+Here, we test the alternate hypothesis that the mean length of odontoblast cells differ significantly for subjects receiving increasing doses of vitamin C.
+
+```{r ttest_dose, echo=FALSE}
+d05 <- ToothGrowth %>% filter(dose == .5)
+d1 <- ToothGrowth %>% filter(dose == 1)
+d2 <- ToothGrowth %>% filter(dose==2)
+t1 <- t.test(d05$len, d1$len, conf.level=.975, paired=FALSE, var.equal=FALSE)
+t2 <- t.test(d05$len, d2$len, conf.level=.975, paired=FALSE, var.equal=FALSE)
+t3 <- t.test(d1$len, d2$len, conf.level=.975, paired=FALSE, var.equal=FALSE)
+g1dose <- c(".5", ".5", "1")
+g2dose <- c("1", "2", "2")
+lb <- c(t1$conf.int[1], t2$conf.int[1], t3$conf.int[1])
+ub <- c(t1$conf.int[2], t2$conf.int[2], t3$conf.int[2])
+pval <- c(t1$p.value, t2$p.value, t3$p.value)
+kable(data.frame(g1dose, g2dose, lb, ub, pval), col.names = c("Group 1 Dose","Group 2 Dose","CI Lower Bound","CI Upper Bound","p-value"))
+```
+
+For all these tests, there is sufficient evidence at $\alpha=.975$ to reject the claim that there is no significant difference in the mean length of odontoblast cells for subjects receiving increasing doses of vitamin C.  Further, the 97.5% confidence interval lies below zero which confirms what we saw in our plots, and what was stated in the conclusion of the original study [@Bliss1].
+
+###Analysis of Tooth Growth by Supplement
+
+Here, we test the alternate hypothesis that the mean length of odontoblast cells differ significantly for subjects receiving different vitamin C supplements at any dose.
+
+```{r ttest_supp, echo=FALSE}
+svc <- ToothGrowth %>% filter(supp == 'VC')
+soj <- ToothGrowth %>% filter(supp == 'OJ')
+t4 <- t.test(svc$len, soj$len, conf.level=.975, paired=FALSE, var.equal=FALSE)
+g1supp <- c("Orange Juice")
+g2supp <- c("Ascorbic Acid")
+lb <- c(t4$conf.int[1])
+ub <- c(t4$conf.int[2])
+pval <- c(t4$p.value)
+kable(data.frame(g1supp, g2supp, lb, ub, pval), col.names = c("Group 1 Supplement","Group 2 Supplement","CI Lower Bound","CI Upper Bound","p-value"))
+```
+
+For this test, there is insufficient evidence  at $\alpha=.975$ to reject the claim that there is no significant difference in the mean length of odontoblast cells for subjects receiving different vitamin C supplmenents at any dose level.
+
+###Analysis of Tooth Growth by Supplement and Dose
+
+
+###Assumptions
+
+To support the conclusions, the following assumptions are necessary:
+
+1. The populations being compared are completely independent (not paired).
+2. Subjects were randomly assigned to dosage and supplement groups but come from a population whose mean and standard deviation for odontoblast length are not known, but are normally distributed.
+3. Even though the sample sizes for the groups being compared are identical, the variances have been shown to not be identical
+4. Because the sample size is relatively small a narrower confidence interval is being used, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1] 
+
+\newpage
+#References
