@@ -43,6 +43,20 @@ stdPlot <- ToothGrowth %>%
 grid.arrange(ojPlot, stdPlot)
 
 
+ggplot(ToothGrowth, aes(x=len)) + 
+  geom_histogram(aes(y = ..density..), col = "azure4", fill = "cornflowerblue", alpha = .5, binwidth = 2) +
+  geom_density(col = "black", fill = "cornflowerblue", alpha = .25)
+
+data.frame(
+  "Orange Juice",
+  "Ascorbic Acid",
+  paste("[", round(t4$conf.int[1],4), ", ", round(t4$conf.int[2],4), "]", sep=""),
+  round(unname(t4$parameter), 2),
+  qt(.975, unname(t4$parameter)),
+  4,
+  5)
+
+
 
 
 
