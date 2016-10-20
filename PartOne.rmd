@@ -168,9 +168,11 @@ This code generates the histogram of sample means:
 ggplot(simulations, aes(x=xBar)) +
   ggtitle("Histogram of Sample Means\n") +
   labs(x = "Means of 40 Random Exponentials", y = "Frequency") +
-  geom_histogram(aes(y = ..density..), col = "azure4", fill = "cornflowerblue", alpha = .5, binwidth = .25) +
+  geom_histogram(aes(y = ..density..), col = "azure4", fill = "cornflowerblue", 
+                 alpha = .5, binwidth = .25) +
   geom_density(color = "chartreuse4", size = 1) +
-  geom_vline(aes(xintercept = mean(xBar), color = "firebrick"), show.legend = FALSE) +
+  geom_vline(aes(xintercept = mean(xBar), color = "firebrick"), 
+             show.legend = FALSE) +
   theme_bw(base_size = 10)
 ```
 
@@ -187,7 +189,8 @@ This code calculates and displays the theoretical and sample variance
 ```{r eval=FALSE}
 sigmaSq <- (1 / (lambda^2)) / n
 sampleVariance <- var(simulations$xBar)
-data.frame(Variance = c(sampleVariance, sigmaSq), row.names = c("Sample", "Theoretical"))
+data.frame(Variance = c(sampleVariance, sigmaSq), 
+           row.names = c("Sample", "Theoretical"))
 ```
 
 This code generates the historgram of flucuations around the mean
@@ -195,10 +198,13 @@ This code generates the historgram of flucuations around the mean
 ggplot(simulations, aes(x=flux)) +
   ggtitle("Histogram of Fluctuation\n") +
   labs(x = "Fluctuation of Mean of 40 Random Exponentials", y = "Frequency") +
-  geom_histogram(aes(y = ..density..), col = "azure4", fill = "cornflowerblue", alpha = .5, binwidth = 1) +
+  geom_histogram(aes(y = ..density..), col = "azure4", fill = "cornflowerblue",
+                 alpha = .5, binwidth = 1) +
   geom_density(color = "chartreuse4", size = 1) +
-  stat_function(fun = dnorm, color = "darkorange", size = 1, args = list(mean = 0, sd = 5)) +
-  geom_vline(aes(xintercept = mean(flux), color = "firebrick"), show.legend = FALSE) +
+  stat_function(fun = dnorm, color = "darkorange", size = 1, 
+                args = list(mean = 0, sd = 5)) +
+  geom_vline(aes(xintercept = mean(flux), color = "firebrick"), 
+             show.legend = FALSE) +
   theme_bw(base_size = 10)
 ```
 
@@ -206,16 +212,19 @@ This code calculates the mean and standard deviation of the fluctuation around t
 ```{r eval=FALSE}
 fluxMean <- mean(simulations$flux)
 fluxSd <- sd(simulations$flux)
-data.frame(Value = c(fluxMean, fluxSd), row.names = c("Mean", "Standard Deviation"))
+data.frame(Value = c(fluxMean, fluxSd), 
+           row.names = c("Mean", "Standard Deviation"))
 ```
 
 This code creates a large exponential distribution and displays the q-q plots comparing it with the sample
 ```{r eval=FALSE}
 bigSim <- rexp(10000, .2)
 par(mfrow=c(1,2))
-qqnorm(y = simulations$xBar, col = "darkslateblue", main = "Q-Q Plot of Sample Means")
+qqnorm(y = simulations$xBar, col = "darkslateblue", 
+       main = "Q-Q Plot of Sample Means")
 qqline(y = simulations$xBar, col = "firebrick1")
-qqnorm(y = bigSim, col = "darkslateblue", main = "Q-Q Plot of Exp. Distribution")
+qqnorm(y = bigSim, col = "darkslateblue", 
+       main = "Q-Q Plot of Exp. Distribution")
 qqline(y = bigSim, col = "firebrick1")
 ```
 
@@ -224,14 +233,16 @@ Code to produce the two exponential distributions used in the appendix
 ex1 <- data.frame(val = rexp(1000, 1.33))
 ex1Plot <-  ggplot(ex1, aes(x=val)) + 
   geom_density(col = "black", fill = "cornflowerblue", alpha = .25) +
-  ggtitle(expression(paste("Exponential distribution with ", lambda, " = 1.33"))) +
+  ggtitle(expression(paste("Exponential distribution with ", 
+                           lambda, " = 1.33"))) +
   labs(x = "X", y = "Density") +
   theme_bw(base_size = 10)
 
 ex2 <- data.frame(val = rexp(1000, .5))
 ex2Plot <-  ggplot(ex2, aes(x=val)) + 
   geom_density(col = "black", fill = "cornflowerblue", alpha = .25) +
-  ggtitle(expression(paste("Exponential distribution with ", lambda, " = 0.67"))) +
+  ggtitle(expression(paste("Exponential distribution with ", 
+                           lambda, " = 0.67"))) +
   labs(x = "X", y = "Density") +
   theme_bw(base_size = 10)
 
