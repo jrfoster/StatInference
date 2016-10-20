@@ -183,7 +183,16 @@ ToothGrowth %>%
 Code for the table for the supplement t-test
 ```{r eval=FALSE}
 t1 <- t.test(sOJ$len, sVC$len, conf.level=.975, paired=FALSE, var.equal=FALSE)
-kable(data.frame("Ascorbic Acid", "Orange Juice", paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), round(unname(t1$parameter), 2),  qt(.9875, unname(t1$parameter)), unname(t1$statistic), t1$p.value), col.names = c("Group 1 Supp", "Group 2 Supp", "Conf Int", "Deg F", "Tabulated t-value", "t-statistic", "p-value"))
+kable(
+  data.frame(
+    "Ascorbic Acid", 
+    "Orange Juice", 
+    paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), 
+    round(unname(t1$parameter), 2),  
+    qt(.9875, unname(t1$parameter)), 
+    unname(t1$statistic), t1$p.value), 
+  col.names = c("Group 1 Supp", "Group 2 Supp", "Conf Int", 
+                "Deg F", "Tabulated t-value", "t-statistic", "p-value"))
 ```
 
 Code for the table for the dose t-tests
@@ -206,7 +215,9 @@ cT <- c(unname(t2$statistic),
         unname(t3$statistic),
         unname(t4$statistic))
 pval <- c(t2$p.value, t3$p.value, t4$p.value)
-kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), col.names = c("Group 1 Dose","Group 2 Dose","Conf Int", "Deg F", "Tabulated t-value", "t-statistic", "p-value"))
+kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), 
+      col.names = c("Group 1 Dose","Group 2 Dose","Conf Int", "Deg F", 
+                    "Tabulated t-value", "t-statistic", "p-value"))
 ```
 
 Code for family-wise error rate tabale
@@ -217,14 +228,18 @@ g2 <- c("Orange Juice", ".5", ".5", "1")
 adjP <- p.adjust(allP, method="bonferroni")
 origConclusion <- allP > .025
 adjConclusion <- adjP > .025
-kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", "Adjusted p-value", "> alpha?"))
+kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), 
+      col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", 
+                    "Adjusted p-value", "> alpha?"))
 ```
 
 Code for the false discovery rate table
 ```{r eval=FALSE}
 adjP <- p.adjust(allP, method="BH")
 adjConclusion <- adjP > .025
-kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", "Adjusted p-value", "> alpha?"))
+kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), 
+      col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", 
+                    "Adjusted p-value", "> alpha?"))
 ```
 
 #References
