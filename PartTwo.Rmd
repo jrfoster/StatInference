@@ -1,7 +1,6 @@
 ---
 title: "Tooth Growth Analysis"
 author: "jrfoster"
-date: "October 19, 2016"
 bibliography: "bibliography.bib"
 biblio-style: "BibTeX"
 geometry: margin=.9in
@@ -21,7 +20,7 @@ data("ToothGrowth")
 
 ##Overview
 
-In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth.  Note that all R code uesd to produce the calculations and plots is included the Appendix but not displayed in the narrative for the sake of brevity.
+In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth.  Note that all R code used to produce the calculations and plots is included the Appendix but not displayed in the narrative for the sake of brevity.
 
 ##Exploratory Data Analysis
 
@@ -32,7 +31,7 @@ str(ToothGrowth)
 paste("Complete Cases:", sum(complete.cases(ToothGrowth)))
 ```
 
-Fromt this we can see that we have 100% complete cases and that we will need to treat dose as discrete (factor) instead of as  continuous (numeric) variable.  Lets take a look to see if any relationships or patterns emerge from the data itself.
+From this we can see that we have 100% complete cases and that we will need to treat dose as discrete (factor) instead of as  continuous (numeric) variable.  Lets take a look to see if any relationships or patterns emerge from the data itself.
 
 ```{r len_over_dose, fig.align='center', fig.height=3, echo=FALSE}
 ToothGrowth %>%
@@ -146,7 +145,7 @@ From the tests and other analysis we conclude the following:
 To support the conclusions, the following assumptions are necessary:
 
 1. Subjects came from a population whose mean odontoblast length is not known but is normally distributed.
-2. Subjects were assigned ramdomly to supplement and dosage groups.
+2. Subjects were assigned randomly to supplement and dosage groups.
 3. Each observation is for a single subject; no pairing of results in the sample.
 
 \newpage
@@ -220,7 +219,7 @@ kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval),
                     "Tabulated t-value", "t-statistic", "p-value"))
 ```
 
-Code for family-wise error rate tabale
+Code for family-wise error rate table
 ```{r eval=FALSE}
 allP <- c(t1$p.value, t2$p.value, t3$p.value, t4$p.value)
 g1 <- c("Ascorbic Acid", "1", "2", "2")

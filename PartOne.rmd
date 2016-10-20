@@ -1,6 +1,8 @@
 ---
 title: "Exploring the CLT with the Exponential Distribution"
 author: "jrfoster"
+bibliography: "bibliography.bib"
+biblio-style: "BibTeX"
 output: 
   pdf_document:
     includes:
@@ -10,7 +12,7 @@ output:
 
 The Central Limit Theorem (CLT) basically says that if independent samples of size n are repeatedly taken from any population, then when n is large the distribution of sample means will approach a normal distribution.  In this report, we investigate the CLT by simulation using R to generate random independent samples of the exponential distribution.  A brief investigation of the Exponential Distribution is given in the Appendix.
 
-Note that all R code uesd to produce the calculations and plots is included the Appendix but not displayed in the narrative for the sake of brevity.
+Note that all R code used to produce the calculations and plots is included the Appendix but not displayed in the narrative for the sake of brevity.
 
 ##Simulations
 
@@ -22,7 +24,7 @@ suppressMessages(library(gridExtra))
 suppressMessages(library(dplyr))
 ```
 
-To generate the simulation data, I used the `rexp` function to generate a single random exponential distribution, `replicate` to repeat the generation 1000 times and `t` to transpose the resulting matrix columns into rows. Finally, `data.frame` was used to create an appropriate structure for `ggplot`.  I then used `dplyr:mutate()` to add a column for each distribution's mean and the fluctuation around the theoretical mean $\mu$ using the forumula $\sqrt{n}(S_n - \mu)$
+To generate the simulation data, I used the `rexp` function to generate a single random exponential distribution, `replicate` to repeat the generation 1000 times and `t` to transpose the resulting matrix columns into rows. Finally, `data.frame` was used to create an appropriate structure for `ggplot`.  I then used `dplyr:mutate()` to add a column for each distribution's mean and the fluctuation around the theoretical mean $\mu$ using the formula $\sqrt{n}(S_n - \mu)$
 
 ```{r data_generation, echo=FALSE}
 lambda <- .2
@@ -47,7 +49,7 @@ ggplot(simulations, aes(x=xBar)) +
   theme_bw(base_size = 10)
 ```
 
-We calcluate the theoretical mean of the exponential distribution with the formula $\frac{1}{\lambda}$. To see how this compares with the sample mean, lets calculate both and compare.
+We calculate the theoretical mean of the exponential distribution with the formula $\frac{1}{\lambda}$. To see how this compares with the sample mean, lets calculate both and compare.
 
 ```{r sample_mean, echo=FALSE}
 confInt <- t.test(simulations$xBar)$conf.int
@@ -77,7 +79,7 @@ As you can see, the theoretical variance of `r sigmaSq` is very close to the sam
 
 We have already seen in the above plots that the distribution of averages of 40 random exponentials resembles a normal distribution.  The distribution of averages is also quite different from a distribution of a large set of random exponentials.  Lets take a look at some further comparisons of this distribution of means as it relates to the normal distribution.
 
-According to Wikipedia, Classical CLT states that as n gets larger, the distribution of the difference between the sample average $S_n$ and its limit $\mu$, when multiplied by the factor $\sqrt{n}$ approximates the normal distribution with mean $0$ and variance $\sigma^2$. 
+According to [@Wiki1], Classical CLT states that as n gets larger, the distribution of the difference between the sample average $S_n$ and its limit $\mu$, when multiplied by the factor $\sqrt{n}$ approximates the normal distribution with mean $0$ and variance $\sigma^2$. 
 
 The simulation data contains this random fluctuation in the variable `flux` so we can examine its distribution with a histogram of these fluctuations, along with its associated density curve.  A normal distribution is also overlaid for comparison.
 
@@ -102,7 +104,7 @@ data.frame(Value = c(fluxMean, fluxSd), row.names = c("Mean", "Standard Deviatio
 
 From this we can see that the CLT's assertion about the distribution being normal with mean 0 is true, since `r fluxMean` is close to zero.
 
-Another method of comparing this distribution of means with a normal distribution is by using a Quantile-Quantile Plot, or q-q plot.  A q-q plot plots the quantiles of one dataset against the quantiles of another dataset and can be useful in determining if two datasets come from a population with a common distribution.  In our case, instead of plotting with two different datasets, we can plot our sample distibution against the the normal distribution by using the `qqnorm` and `qqline` functions in R.  By way of comparison, we also display a q-q plot of a large random exponential distribution with $n=1000$ and $\lambda=.2$.
+Another method of comparing this distribution of means with a normal distribution is by using a Quantile-Quantile Plot, or q-q plot.  A q-q plot plots the quantiles of one dataset against the quantiles of another dataset and can be useful in determining if two datasets come from a population with a common distribution.  In our case, instead of plotting with two different datasets, we can plot our sample distribution against the the normal distribution by using the `qqnorm` and `qqline` functions in R.  By way of comparison, we also display a q-q plot of a large random exponential distribution with $n=1000$ and $\lambda=.2$.
 
 ```{r qqplot, echo=FALSE, fig.align='center', fig.height=3}
 bigSim <- rexp(10000, .2)
@@ -193,7 +195,7 @@ data.frame(Variance = c(sampleVariance, sigmaSq),
            row.names = c("Sample", "Theoretical"))
 ```
 
-This code generates the historgram of flucuations around the mean
+This code generates the histogram of fluctuations around the mean
 ```{r eval=FALSE}
 ggplot(simulations, aes(x=flux)) +
   ggtitle("Histogram of Fluctuation\n") +
@@ -248,3 +250,5 @@ ex2Plot <-  ggplot(ex2, aes(x=val)) +
 
 grid.arrange(ex1Plot, ex2Plot, nrow=1, ncol=2)
 ```
+
+##References
