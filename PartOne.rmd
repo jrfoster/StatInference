@@ -94,12 +94,12 @@ ggplot(simulations, aes(x=flux)) +
   theme_bw(base_size = 10)
 ```
 
-As expected, this histogram resembles a normal distribution.  Lets take a look at the mean and standard deviation of this distribution to see if it approaches what the CLT would assert.
+As expected, this histogram resembles a normal distribution.  Lets take a look at the mean and variance of this distribution to see if it approaches what the CLT would assert.
 
 ```{r flux_data, echo=FALSE}
 fluxMean <- mean(simulations$flux)
-fluxSd <- sd(simulations$flux)
-data.frame(Value = c(fluxMean, fluxSd), row.names = c("Mean", "Standard Deviation"))
+fluxSd <- var(simulations$flux)
+data.frame(Value = c(fluxMean, fluxSd), row.names = c("Mean", "Variance"))
 ```
 
 From this we can see that the CLT's assertion about the distribution being normal with mean 0 is true, since `r fluxMean` is close to zero.
