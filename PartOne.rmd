@@ -120,11 +120,15 @@ We can see from these q-q plot that the quantiles of our sample distribution fol
 \newpage
 ##Appendix
 
+###A Note on Reproducibility
+
+For the reviewer of this analysis: I have chosen to not use `set.seed` because I believe that this analysis could be run repeatedly, with different random samples, any number of times, and my assertions would still be valid.
+
 ###Exponential Distribution
 
 The exponential distribution is defined as $f(x) = \lambda e ^ {- \lambda x} \qquad x > 0, \lambda > 0$.  
 
-Two exponential distributions are plotted below with $n=1000$. Note that while they both have the same basic shape, the shape does not resemble a normal distribution.  Notice, also that the higher the $\lambda$ the more likely it is that a random variable X will have a small value, which makes sense, given that the mean and standard deviation of the exponential distribution is $\frac{1}{\lambda}$.
+Two exponential distributions are plotted below with $n=1000$. Note that while they both have the same basic shape, the shape does not resemble a normal distribution.  Notice, also that the higher the $\lambda$ the more likely it is that a random variable X will have a small value, which makes sense, given that the mean and standard deviation of the exponential distribution is $\frac{1}{\lambda}$ (adapted from [@AMSI1])
 
 ```{r exponential_examples, echo=FALSE, fig.align='center', fig.height=2}
 ex1 <- data.frame(val = rexp(1000, 1.33))
@@ -145,6 +149,7 @@ grid.arrange(ex1Plot, ex2Plot, nrow=1, ncol=2)
 ```
 
 ###Code Used in Report
+
 This section contains all the code used to generate the diagrams.
 
 Code to include libraries

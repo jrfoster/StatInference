@@ -15,6 +15,7 @@ suppressMessages(library(datasets))
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
 suppressMessages(library(knitr))
+suppressMessages(library(pander))
 data("ToothGrowth")
 ```
 
@@ -51,7 +52,7 @@ Lets also take a little closer look at some basic statistics from this raw data.
 stat1 <- ToothGrowth %>%
   group_by(dose, supp) %>%
   summarize(mean = mean(len), median=median(len), var=var(len))
-kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Median", "Mean", "Variance"))
+kable(x=stat1, digits=2, col.names=c("**Dose**", "**Supplement**", "**Median**", "**Mean**", "**Variance**"))
 ```
 
 From this data we can see that the variances for the various dose and supplement combinations are generally not the same.  Its interesting that when comparing variance between the dosage groups, there is greater variance in odontoblast length for the subjects on orange juice at the .5mg and 1mg dosage and greater variance for the subjects on 2mg ascorbic acid.  Its also interesting that the means are identical for the 2mg dosage groups, which coincides with the 'ceiling' noted by [@Bliss1].
@@ -66,7 +67,7 @@ sOJ <- ToothGrowth %>% filter(supp == 'OJ')
 d05 <- ToothGrowth %>% filter(dose == .5)
 d1 <- ToothGrowth %>% filter(dose == 1)
 d2 <- ToothGrowth %>% filter(dose==2)
-kable(data.frame(var(sVC$len), var(sOJ$len), var(d05$len), var(d1$len), var(d2$len)), col.names = c("Orange Juice","Ascorbic Acid",".05mg","1mg","2mg"))
+kable(data.frame(var(sVC$len), var(sOJ$len), var(d05$len), var(d1$len), var(d2$len)), col.names = c("**Orange Juice**","**Ascorbic Acid**","**.05mg**","**1mg**","**2mg**"))
 ```
 
 Even though the variances are fairly close in some cases between certain groups, to control the Type 1 error rate we will perform all t-tests with `var.equal=FALSE`.  Note, also, that given the study design, all t-tests will be performed with `paired=FALSE` as well.
@@ -77,7 +78,7 @@ Let the null hypothesis, $H_0$, be that that the mean odontoblast length of subj
 
 ```{r ttest_supp, echo=FALSE}
 t1 <- t.test(sOJ$len, sVC$len, conf.level=.975, paired=FALSE, var.equal=FALSE)
-kable(data.frame("Ascorbic Acid", "Orange Juice", paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), round(unname(t1$parameter), 2),  qt(.9875, unname(t1$parameter)), unname(t1$statistic), t1$p.value), col.names = c("Group 1 Supp", "Group 2 Supp", "Conf Int", "Deg F", "Tabulated t-value", "t-statistic", "p-value"))
+kable(data.frame("Ascorbic Acid", "Orange Juice", paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), round(unname(t1$parameter), 2),  qt(.9875, unname(t1$parameter)), unname(t1$statistic), t1$p.value), col.names = c("**Group 1 Supp**", "**Group 2 Supp**", "**Conf Int**", "**Deg F**", "**Tabulated t-value**", "**t-Statistic**", "**p-value**"))
 ```
 
 Since $p > .025$, the value of t-statistic is less than the tabulated t-value, and the confidence interval contains 0, there is insufficient evidence at $\alpha=.025$ to reject the claim that the mean odontoblast length for subjects receiving orange juice is equal to the mean odontoblast length of subjects receiving ascorbic acid.
@@ -105,7 +106,7 @@ cT <- c(unname(t2$statistic),
         unname(t3$statistic),
         unname(t4$statistic))
 pval <- c(t2$p.value, t3$p.value, t4$p.value)
-kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), col.names = c("Group 1 Dose","Group 2 Dose","Conf Int", "Deg F", "Tabulated t-value", "t-statistic", "p-value"))
+kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), col.names = c("**Group 1 Dose**","**Group 2 Dose**","**Conf Int**", "**Deg F**", "**Tabulated t-value**", "**t-Statistic**", "**p-value**"))
 ```
 
 From these multiple tests we can see that for each, $p < .025$, the t-statistic is greater than the tabulated t-value and none of the confidence intervals contain 0.  Based on these results, there appears to be sufficient evidence at $\alpha=.025$ to reject the claim that the mean ondontoblast length for subjects receiving a smaller dose is equal to the mean odontoblast length of subjects receiving a larger dose.
@@ -116,7 +117,7 @@ From these multiple tests we can see that for each, $p < .025$, the t-statistic 
 allP <- c(t1$p.value, t2$p.value, t3$p.value, t4$p.value)
 ```
 
-Since we have performed 4 t-tests with $\alpha=.025$ on the same sample population, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1], we've calculated the family-wise error rate using the Bonferroni Correction and adjusted the original p-values and compared them again to $\alpha-.025$.  Note that even after adjustment the original conclusions are still valid.
+Since we have performed 4 t-tests with $\alpha=.025$ on the same sample population, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1], we've calculated the family-wise error rate using the Bonferroni Correction and adjusted the original p-values and compared them again to $\alpha=.025$.  Note that even after adjustment the null hypothesis assertions are still valid.
 
 ```{r fwer, echo=FALSE}
 g1 <- c("Ascorbic Acid", "1", "2", "2")
@@ -124,15 +125,15 @@ g2 <- c("Orange Juice", ".5", ".5", "1")
 adjP <- p.adjust(allP, method="bonferroni")
 origConclusion <- allP > .025
 adjConclusion <- adjP > .025
-kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", "Adjusted p-value", "> alpha?"))
+kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("**Group1**", "**Group 2**", "**Original p-value**", "**> alpha?**", "**Adjusted p-value**", "**> alpha?**"))
 ```
 
-Additionally, we've calculated the false discovery rate using the Benjamini-Hochberg Correction. Note that even after adjustment the original conclusions are still valid.
+Additionally, we've calculated the false discovery rate using the Benjamini-Hochberg Correction. Note that even after adjustment the null hypothesis assertions are still valid.
 
 ```{r fdr, echo=FALSE}
 adjP <- p.adjust(allP, method="BH")
 adjConclusion <- adjP > .025
-kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", "Adjusted p-value", "> alpha?"))
+kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("**Group1**", "**Group 2**", "**Original p-value**", "**> alpha?**", "**Adjusted p-value**", "**> alpha?**"))
 ```
 
 ##Conclusions and Assumptions
@@ -150,6 +151,8 @@ To support the conclusions, the following assumptions are necessary:
 
 \newpage
 #Appendix
+
+###Code Used in Report
 
 This section contains all the code used to generate the tables and plots in the report.
 
