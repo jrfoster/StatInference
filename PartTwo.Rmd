@@ -21,11 +21,11 @@ data("ToothGrowth")
 
 ##Overview
 
-In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth.  Note that all R code used to produce the calculations and plots is included the Appendix but not displayed in the narrative for the sake of brevity.
+In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth. It performs various hypothesis tests to "verify" if the conclusions in the orginal study are valid given the data.
 
 ##Exploratory Data Analysis
 
-The raw data consist of 60 observations of 3 variables: len, supp and dose.  Len is the mean length, in microns, of the subject odontoblast. Supp is the supplement type the subject ingested, either orange juice (OJ) or ascorbic acid (VC).  Dose is the amount of supplement, in milligrams, the subject ingested (either .5, 1 or 2).  It should be noted that the original data included gender, however Crampton showed in his analysis that the effect of gender could be neglected [@Bliss1].  Lets take a quick look at the dataset.
+In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. The raw data consist of 60 observations of 3 variables: len, supp and dose.  Len is the mean length, in microns, of the subject odontoblast. Supp is the supplement type the subject ingested, either orange juice (OJ) or ascorbic acid (VC).  Dose is the amount of supplement, in milligrams, the subject ingested (either .5, 1 or 2).  It should be noted that the original data included gender, however Crampton showed in his analysis that the effect of gender could be neglected [@Bliss1].  Lets take a quick look at the dataset.
 
 ```{r quick_look, echo=FALSE}
 str(ToothGrowth)
@@ -186,7 +186,7 @@ Code for exploratory plot
 ToothGrowth %>%
   ggplot(aes(x=factor(dose), y=len, group=supp, color=supp)) +
   ggtitle("Odontoblast Length as a Function of Dose\n") +
-  labs(x = "Dosage (mg)", y = "Odontoblasts Length (microns)", color="Supplement") +
+  labs(x="Dosage (mg)", y="Odontoblasts Length (microns)", color="Supplement") +
   geom_point() +
   stat_summary(aes(group=supp, color=supp), fun.y=mean, geom="line") +
   theme_bw(base_size = 10)
@@ -199,7 +199,8 @@ kable(
   data.frame(
     "Ascorbic Acid", 
     "Orange Juice", 
-    paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), 
+    paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]"
+          , sep=""), 
     round(unname(t1$parameter), 2),  
     qt(.975, unname(t1$parameter)), 
     unname(t1$statistic), t1$p.value), 
@@ -214,9 +215,10 @@ t3 <- t.test(d2$len, d05$len,  paired=FALSE, var.equal=FALSE)
 t4 <- t.test(d2$len, d1$len, paired=FALSE, var.equal=FALSE)
 g1dose <- c("1", "2", "2")
 g2dose <- c(".5", ".5", "1")
-ci <- c(paste("[", round(t2$conf.int[1], 4), ", ", round(t2$conf.int[2], 4), "]", sep=""), 
-        paste("[", round(t3$conf.int[1], 4), ", ", round(t3$conf.int[2], 4), "]", sep=""), 
-        paste("[", round(t4$conf.int[1], 4), ", ", round(t4$conf.int[2], 4), "]", sep=""))
+ci <- c(
+ paste("[", round(t2$conf.int[1],4), ", ", round(t2$conf.int[2],4), "]", sep=""), 
+ paste("[", round(t3$conf.int[1],4), ", ", round(t3$conf.int[2],4), "]", sep=""), 
+ paste("[", round(t4$conf.int[1],4), ", ", round(t4$conf.int[2],4), "]", sep=""))
 df <- c(unname(t2$parameter),
         unname(t3$parameter),
         unname(t4$parameter))
