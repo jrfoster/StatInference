@@ -3,7 +3,7 @@ title: "Tooth Growth Analysis"
 author: "jrfoster"
 bibliography: "bibliography.bib"
 biblio-style: "BibTeX"
-geometry: margin=.9in
+geometry: margin=.8in
 output: 
   pdf_document:
     includes:
@@ -25,14 +25,14 @@ In 1942, the Canadian Government, faced with the problem of providing any type o
 
 ##Exploratory Data Analysis
 
-In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. The raw data consist of 60 observations of 3 variables: len, supp and dose.  Len is the mean length, in microns, of the subject odontoblast. Supp is the supplement type the subject ingested, either orange juice (OJ) or ascorbic acid (VC).  Dose is the amount of supplement, in milligrams, the subject ingested (either .5, 1 or 2).  It should be noted that the original data included gender, however Crampton showed in his analysis that the effect of gender could be neglected [@Bliss1].  Lets take a quick look at the dataset.
+In the study, the response of 10 guinea pigs on each of three doses of ascorbic acid and of fresh orange juice during a six-week test period was measured from the average length of the odontoblasts in each animal [@Bliss1]. The raw data consist of 60 observations of 3 variables: len, supp and dose.  Len is the mean length, in microns, of the subject odontoblast. Supp is the supplement type the subject ingested, either orange juice (coded as OJ) or ascorbic acid (coded as VC).  Dose is the amount of supplement, in milligrams, the subject ingested (either .5, 1 or 2).  It should be noted that the original data included gender, however Crampton showed in his analysis that the effect of gender could be neglected [@Bliss1].  Lets take a quick look at the data.
 
 ```{r quick_look, echo=FALSE}
 str(ToothGrowth)
 paste("Complete Cases:", sum(complete.cases(ToothGrowth)))
 ```
 
-From this we can see that we have 100% complete cases and that we will need to treat dose as discrete (factor) instead of as  continuous (numeric) variable.  The appendix contains a basic visual look at the data, so lets take a look to see if any relationships or patterns emerge with a little closer look.
+From this we can see that we have 100% complete cases and that we will need to treat dose as discrete (factor) instead of as  continuous (numeric) variable.  The appendix contains a basic visual look at the data. Based on that, lets take a closer look at some of the relationships between the variables.
 
 ```{r len_over_dose, fig.align='center', fig.height=3, echo=FALSE}
 ToothGrowth %>%
@@ -51,8 +51,8 @@ Lets also take a little closer look at some basic statistics from this raw data.
 ```{r basic_stats, echo=FALSE}
 stat1 <- ToothGrowth %>%
   group_by(dose, supp) %>%
-  summarize(mean = mean(len), median=median(len), var=var(len))
-kable(x=stat1, digits=2, col.names=c("**Dose**", "**Supplement**", "**Median**", "**Mean**", "**Variance**"))
+  summarize(range=paste(min(len), "-", max(len)), first = quantile(len, probs=.25), third = quantile(len, probs=.75), mean = mean(len), median=median(len), var=var(len))
+kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Range", "1st Quartile", "3rd Quartile", "Median", "Mean", "Variance"))
 ```
 
 From this data we can see that the variances for the various dose and supplement combinations are generally not the same.  Its interesting that when comparing variance between the dosage groups, there is greater variance in odontoblast length for the subjects on orange juice at the .5mg and 1mg dosage and greater variance for the subjects on 2mg ascorbic acid.  Its also interesting that the means are identical for the 2mg dosage groups, which coincides with the 'ceiling' noted by [@Bliss1].
@@ -67,7 +67,7 @@ sOJ <- ToothGrowth %>% filter(supp == 'OJ')
 d05 <- ToothGrowth %>% filter(dose == .5)
 d1 <- ToothGrowth %>% filter(dose == 1)
 d2 <- ToothGrowth %>% filter(dose==2)
-kable(data.frame(var(sVC$len), var(sOJ$len), var(d05$len), var(d1$len), var(d2$len)), col.names = c("**Orange Juice**","**Ascorbic Acid**","**.05mg**","**1mg**","**2mg**"))
+kable(data.frame(var(sVC$len), var(sOJ$len), var(d05$len), var(d1$len), var(d2$len)), col.names = c("Orange Juice","Ascorbic Acid",".05mg","1mg","2mg"))
 ```
 
 Even though the variances are fairly close in some cases between certain groups, to control the Type 1 error rate we will perform all t-tests with `var.equal=FALSE`.  Note, also, that given the study design, all t-tests will be performed with `paired=FALSE` as well.
@@ -78,7 +78,7 @@ Let the null hypothesis, $H_0$, be that that the mean odontoblast length of subj
 
 ```{r ttest_supp, echo=FALSE}
 t1 <- t.test(sOJ$len, sVC$len, paired=FALSE, var.equal=FALSE)
-kable(data.frame("Ascorbic Acid", "Orange Juice", paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), round(unname(t1$parameter), 2),  qt(.975, unname(t1$parameter)), unname(t1$statistic), t1$p.value), col.names = c("**Group 1 Supp**", "**Group 2 Supp**", "**Conf Int**", "**Deg F**", "**Tabulated t-value**", "**t-Statistic**", "**p-value**"))
+kable(data.frame("Ascorbic Acid", "Orange Juice", paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]", sep=""), round(unname(t1$parameter), 2),  qt(.975, unname(t1$parameter)), unname(t1$statistic), t1$p.value), col.names = c("Group 1 Supp", "Group 2 Supp", "Conf Int", "Deg F", "Tabulated t-value", "t-Statistic", "p-value"))
 ```
 
 Since $p > .05$, the value of t-statistic is less than the tabulated t-value, and the confidence interval contains 0, there is insufficient evidence at $\alpha=.05$ to reject the claim that the mean odontoblast length for subjects receiving orange juice is equal to the mean odontoblast length of subjects receiving ascorbic acid.
@@ -106,7 +106,7 @@ cT <- c(unname(t2$statistic),
         unname(t3$statistic),
         unname(t4$statistic))
 pval <- c(t2$p.value, t3$p.value, t4$p.value)
-kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), col.names = c("**Group 1 Dose**","**Group 2 Dose**","**Conf Int**", "**Deg F**", "**Tabulated t-value**", "**t-Statistic**", "**p-value**"))
+kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), col.names = c("Group 1 Dose","Group 2 Dose","Conf Int", "Deg F", "Tabulated t-value", "t-Statistic", "p-value"))
 ```
 
 From these multiple tests we can see that for each, $p < .05$, the t-statistic is greater than the tabulated t-value and none of the confidence intervals contain 0.  Based on these results, there appears to be sufficient evidence at $\alpha=.05$ to reject the claim that the mean ondontoblast length for subjects receiving a smaller dose is equal to the mean odontoblast length of subjects receiving a larger dose.
@@ -117,7 +117,7 @@ From these multiple tests we can see that for each, $p < .05$, the t-statistic i
 allP <- c(t1$p.value, t2$p.value, t3$p.value, t4$p.value)
 ```
 
-Since we have performed 4 t-tests with $\alpha=.05$ on the same sample population, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1], we've calculated the family-wise error rate using the Bonferroni Correction and adjusted the original p-values and compared them again to $\alpha=.05$.  Note that even after adjustment the null hypothesis assertions are still valid.
+Since we have performed 4 t-tests with $\alpha=.05$ on the same sample population, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1], we've calculated the family-wise error rate using the Bonferroni Correction and adjusted the original p-values and compared them again to $\alpha=.05$ and similarly we've calculated the false discovery rate using the Benjamini-Hochberg Correction.  Note that even after adjustment the null hypothesis assertions are still valid.
 
 ```{r fwer, echo=FALSE}
 g1 <- c("Ascorbic Acid", "1", "2", "2")
@@ -125,16 +125,16 @@ g2 <- c("Orange Juice", ".5", ".5", "1")
 adjP <- p.adjust(allP, method="bonferroni")
 origConclusion <- allP > .05
 adjConclusion <- adjP > .05
-kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("**Group1**", "**Group 2**", "**Original p-value**", "**> alpha?**", "**Adjusted p-value**", "**> alpha?**"))
+kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", "Adjusted p-value", "> alpha?"))
 ```
-
-Additionally, we've calculated the false discovery rate using the Benjamini-Hochberg Correction. Note that even after adjustment the null hypothesis assertions are still valid.
 
 ```{r fdr, echo=FALSE}
 adjP <- p.adjust(allP, method="BH")
 adjConclusion <- adjP > .05
-kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("**Group1**", "**Group 2**", "**Original p-value**", "**> alpha?**", "**Adjusted p-value**", "**> alpha?**"))
+kable(data.frame(g1, g2, allP, origConclusion, adjP, adjConclusion), col.names = c("Group1", "Group 2", "Original p-value", "> alpha?", "Adjusted p-value", "> alpha?"))
 ```
+
+The appendix contains power calculations for all tests performed.
 
 ##Conclusions and Assumptions
 
@@ -152,7 +152,7 @@ To support the conclusions, the following assumptions are necessary:
 \newpage
 #Appendix
 
-###Basic Data Exploration
+####Basic Data Exploration
 
 The following code generates some pairs plots as a very basic investigation of the ToothGrowth data.
 
@@ -161,16 +161,48 @@ ToothGrowth$dose <- as.factor(ToothGrowth$dose)
 ggpairs(ToothGrowth)
 ```
 
-###Code Used in Report
+####Power Calculations
+
+The following table contains all the power calculations for each of the t-tests performed.  Note that for each, a pooled standard deviation was calculated using the following formula:
+
+$$
+S_p = \sqrt{\frac{(n_1 - 1)s_1^2 + (n_2 - 1)s_2^2}{n1 + n2 - 2}}
+$$
+
+```{r power}
+lsVC <- length(sVC$len); sdsVC <- sd(sVC$len); lsOJ <- length(sOJ$len) 
+sdsOJ <- sd(sOJ$len); t1dl <- mean(sVC$len) - mean(sOJ$len)
+t1sp <- sqrt((((lsOJ-1) * sdsOJ^2) + ((lsVC-1) * sdsVC^2)) / (lsOJ + lsVC - 2))
+t1p <- power.t.test(n=30,sd=t1sp,delta=t1dl,sig.level=.95,type="two.sample",
+                    alternative="two.sided")$power
+ld1 <- length(d1$len); sdd1 <- sd(d1$len); ld05 <- length(d05$len)
+sdd05 <- sd(d05$len); t2dl <- mean(d1$len) - mean(d05$len)
+t2sp <- sqrt((((ld05-1) * sdd05^2) + ((ld1-1) * sdd1^2)) / (ld05 + ld1 - 2))
+t2p <- power.t.test(n=30,sd=t2sp,delta=t2dl,sig.level=.95,type="two.sample",
+                    alternative="two.sided")$power
+ld2 <- length(d2$len); sdd2 <- sd(d2$len); ld05 <- length(d05$len)
+sdd05 <- sd(d05$len); t3dl <- mean(d2$len) - mean(d05$len)
+t3sp <- sqrt((((ld05-1) * sdd05^2) + ((ld2-1) * sdd2^2)) / (ld05 + ld2 - 2))
+t3p <- power.t.test(n=30,sd=t3sp,delta=t3dl,sig.level=.95,type="two.sample",
+                    alternative="two.sided")$power
+ld1 <- length(d1$len); sdd1 <- sd(d1$len); ld2 <- length(d2$len)
+sdd2 <- sd(d2$len); t4dl <- mean(d1$len) - mean(d2$len)
+t4sp <- sqrt((((ld2-1) * sdd2^2) + ((ld1-1) * sdd1^2)) / (ld2 + ld1 - 2))
+t4p <- power.t.test(n=30,sd=t4sp,delta=t4dl,sig.level=.95,type="two.sample",
+                    alternative="two.sided")$power
+kable(data.frame(round(t1p,4),round(t2p,4),round(t3p,4),round(t4p,4)),
+      col.names=c("OJ-VC Power",".5mg-1mg Power",
+                  ".5mg-2mg Power","1mg-2mg Power"))
+```
+
+####Code Used in Report
 
 This section contains all the code used to generate the tables and plots in the report.
 
 Code for setup and loading the data
 ```{r eval=FALSE}
-suppressMessages(library(datasets))
-suppressMessages(library(ggplot2))
-suppressMessages(library(dplyr))
-suppressMessages(library(knitr))
+suppressMessages(library(datasets)); suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr)); suppressMessages(library(knitr))
 suppressMessages(library(GGally))
 data("ToothGrowth")
 ```
@@ -183,26 +215,38 @@ paste("Complete Cases:", sum(complete.cases(ToothGrowth)))
 
 Code for exploratory plot
 ```{r eval=FALSE}
-ToothGrowth %>%
-  ggplot(aes(x=factor(dose), y=len, group=supp, color=supp)) +
+ToothGrowth %>% ggplot(aes(x=factor(dose), y=len, group=supp, color=supp)) +
   ggtitle("Odontoblast Length as a Function of Dose\n") +
-  labs(x="Dosage (mg)", y="Odontoblasts Length (microns)", color="Supplement") +
+  labs(x="Dosage (mg)", y="Odontoblasts Length (microns)",color="Supplement") +
   geom_point() +
   stat_summary(aes(group=supp, color=supp), fun.y=mean, geom="line") +
   theme_bw(base_size = 10)
 ```
 
+Code for basic statistics
+```{r eval=FALSE}
+stat1 <- ToothGrowth %>% group_by(dose, supp) %>%
+  summarize(range=paste(min(len),"-",max(len)),first=quantile(len, probs=.25), 
+    third=quantile(len,probs=.75),mean=mean(len),median=median(len),var=var(len))
+kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Range", 
+  "1st Quartile", "3rd Quartile", "Median", "Mean", "Variance"))
+```
+
+Code for the table for the variances
+```{r eval=FALSE}
+sVC <- ToothGrowth %>% filter(supp=='VC'); sOJ <- ToothGrowth %>% filter(supp=='OJ')
+d05 <- ToothGrowth %>% filter(dose==.5); d1 <- ToothGrowth %>% filter(dose==1)
+d2 <- ToothGrowth %>% filter(dose==2)
+kable(data.frame(var(sVC$len),var(sOJ$len),var(d05$len),var(d1$len),var(d2$len)), 
+  col.names = c("Orange Juice","Ascorbic Acid",".05mg","1mg","2mg"))
+```
+
 Code for the table for the supplement t-test
 ```{r eval=FALSE}
 t1 <- t.test(sOJ$len, sVC$len, paired=FALSE, var.equal=FALSE)
-kable(
-  data.frame(
-    "Ascorbic Acid", 
-    "Orange Juice", 
-    paste("[", round(t1$conf.int[1],4), ", ", round(t1$conf.int[2],4), "]"
-          , sep=""), 
-    round(unname(t1$parameter), 2),  
-    qt(.975, unname(t1$parameter)), 
+kable(data.frame("Ascorbic Acid", "Orange Juice", 
+    paste("[", round(t1$conf.int[1],4),", ",round(t1$conf.int[2],4),"]",sep=""), 
+    round(unname(t1$parameter), 2),  qt(.975, unname(t1$parameter)), 
     unname(t1$statistic), t1$p.value), 
   col.names = c("Group 1 Supp", "Group 2 Supp", "Conf Int", 
                 "Deg F", "Tabulated t-value", "t-statistic", "p-value"))
@@ -213,21 +257,16 @@ Code for the table for the dose t-tests
 t2 <- t.test(d1$len, d05$len, paired=FALSE, var.equal=FALSE)
 t3 <- t.test(d2$len, d05$len,  paired=FALSE, var.equal=FALSE)
 t4 <- t.test(d2$len, d1$len, paired=FALSE, var.equal=FALSE)
-g1dose <- c("1", "2", "2")
-g2dose <- c(".5", ".5", "1")
+g1dose <- c("1", "2", "2"); g2dose <- c(".5", ".5", "1")
 ci <- c(
  paste("[", round(t2$conf.int[1],4), ", ", round(t2$conf.int[2],4), "]", sep=""), 
  paste("[", round(t3$conf.int[1],4), ", ", round(t3$conf.int[2],4), "]", sep=""), 
  paste("[", round(t4$conf.int[1],4), ", ", round(t4$conf.int[2],4), "]", sep=""))
-df <- c(unname(t2$parameter),
-        unname(t3$parameter),
-        unname(t4$parameter))
+df <- c(unname(t2$parameter),unname(t3$parameter),unname(t4$parameter))
 tT <- c(qt(.975, unname(t2$parameter)),
         qt(.975, unname(t3$parameter)),
         qt(.975, unname(t4$parameter)))
-cT <- c(unname(t2$statistic),
-        unname(t3$statistic),
-        unname(t4$statistic))
+cT <- c(unname(t2$statistic),unname(t3$statistic),unname(t4$statistic))
 pval <- c(t2$p.value, t3$p.value, t4$p.value)
 kable(data.frame(g1dose, g2dose, ci, df, tT, cT, pval), 
       col.names = c("Group 1 Dose","Group 2 Dose","Conf Int", "Deg F", 
