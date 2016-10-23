@@ -21,7 +21,7 @@ data("ToothGrowth")
 
 ##Overview
 
-In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth. It performs various hypothesis tests to "verify" if the conclusions in the orginal study are valid given the data.
+In 1942, the Canadian Government, faced with the problem of providing any type of sustained and natural source of vitamin C to its armed forces, requested Macdonald College of McGill University in Quebec to undertake the establishment of a vitamin C bioassay which might be used as a check against chemical procedure [@Crampton1]. This report revisits this study, using techniques covered in Statistical Inference and a version of the original data included the R {datasets} package, ToothGrowth. It performs various hypothesis tests to "verify" if the conclusions in the original study are valid given the data.
 
 ##Exploratory Data Analysis
 
