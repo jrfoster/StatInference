@@ -51,15 +51,15 @@ Lets also take a little closer look at some basic statistics from this raw data.
 ```{r basic_stats, echo=FALSE}
 stat1 <- ToothGrowth %>%
   group_by(dose, supp) %>%
-  summarize(range=paste(min(len), "-", max(len)), first = quantile(len, probs=.25), third = quantile(len, probs=.75), mean = mean(len), median=median(len), var=var(len))
-kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Range", "1st Quartile", "3rd Quartile", "Median", "Mean", "Variance"))
+  summarize(range=paste(min(len), "-", max(len)), first = quantile(len, probs=.25), median=median(len), third = quantile(len, probs=.75), mean = mean(len), var=var(len))
+kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Range", "1st Quartile", "Median", "3rd Quartile", "Mean", "Variance"))
 ```
 
-From this data we can see that the variances for the various dose and supplement combinations are generally not the same.  Its interesting that when comparing variance between the dosage groups, there is greater variance in odontoblast length for the subjects on orange juice at the .5mg and 1mg dosage and greater variance for the subjects on 2mg ascorbic acid.  Its also interesting that the means are identical for the 2mg dosage groups, which coincides with the 'ceiling' noted by [@Bliss1].
+From this data we can see that the variances for the various dose and supplement combinations are generally not the same.  Its interesting that when comparing variance between the dosage groups, there is greater variance in odontoblast length for the subjects on orange juice at the .5mg and 1mg dosage and greater variance for the subjects on 2mg ascorbic acid.  Its also interesting that the means are nearly identical for the 2mg dosage groups, which might coincide with the 'ceiling' noted by [@Bliss1].
 
 ##Analysis
 
-Given what we saw with the the plot and the underlying means and variances of the various populations, we will perform some hypothesis testing to identify the effect of supplement type and, separately, dosage on tooth growth.  Lets take a look at the variances within the the various sub-groups we will be comparing so that we can understand what type of t-test to perform.
+Given what we saw with the the plot and the underlying means and variances of the various populations, we will perform some hypothesis tests to assess the effect of supplement type and, separately, dosage on tooth growth.  Lets take a look at the variances within the the various sub-groups we will be comparing so that we can understand what type of t-test to perform.
 
 ```{r var_groups, echo=FALSE}
 sVC <- ToothGrowth %>% filter(supp == 'VC')
@@ -83,6 +83,7 @@ kable(data.frame("Ascorbic Acid", "Orange Juice", paste("[", round(t1$conf.int[1
 
 Since $p > .05$, the value of t-statistic is less than the tabulated t-value, and the confidence interval contains 0, there is insufficient evidence at $\alpha=.05$ to reject the claim that the mean odontoblast length for subjects receiving orange juice is equal to the mean odontoblast length of subjects receiving ascorbic acid.
 
+\newpage
 ####Tooth Growth by Dose
 
 Let the null hypothesis, $H_0$, be that the mean odontoblast length of subjects receiving a smaller dose is equal to the mean odontoblast length of subjects receiving a larger dose.  The alternate hypothesis, $H_a$, is that the mean odontoblast length between these two groups is not equal.  We perform essentially the same Welch two-sample tests for the various dosage group permutations.  The results of the tests are shown in the following table.
@@ -117,7 +118,7 @@ From these multiple tests we can see that for each, $p < .05$, the t-statistic i
 allP <- c(t1$p.value, t2$p.value, t3$p.value, t4$p.value)
 ```
 
-Since we have performed 4 t-tests with $\alpha=.05$ on the same sample population, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1], we've calculated the family-wise error rate using the Bonferroni Correction and adjusted the original p-values and compared them again to $\alpha=.05$ and similarly we've calculated the false discovery rate using the Benjamini-Hochberg Correction.  Note that even after adjustment the null hypothesis assertions are still valid.
+Since we have performed 4 t-tests with $\alpha=.05$ on the same sample population, even though the t-test is very robust against unequal variances when the sample sizes are identical [@Lakens1], we've calculated the family-wise error rate using the Bonferroni Correction and adjusted the original p-values and compared them again to $\alpha=.05$ and similarly we've calculated the false discovery rate using the Benjamini-Hochberg Correction.  Note that even after adjustment the original null hypothesis assertions are still valid.
 
 ```{r fwer, echo=FALSE}
 g1 <- c("Ascorbic Acid", "1", "2", "2")
@@ -156,7 +157,7 @@ To support the conclusions, the following assumptions are necessary:
 
 The following code generates some pairs plots as a very basic investigation of the ToothGrowth data.
 
-```{r ggpairs, message=FALSE, warning=FALSE}
+```{r ggpairs, message=FALSE, warning=FALSE, fig.align='center'}
 ToothGrowth$dose <- as.factor(ToothGrowth$dose)
 ggpairs(ToothGrowth)
 ```
@@ -226,10 +227,11 @@ ToothGrowth %>% ggplot(aes(x=factor(dose), y=len, group=supp, color=supp)) +
 Code for basic statistics
 ```{r eval=FALSE}
 stat1 <- ToothGrowth %>% group_by(dose, supp) %>%
-  summarize(range=paste(min(len),"-",max(len)),first=quantile(len, probs=.25), 
-    third=quantile(len,probs=.75),mean=mean(len),median=median(len),var=var(len))
-kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Range", 
-  "1st Quartile", "3rd Quartile", "Median", "Mean", "Variance"))
+  summarize(range=paste(min(len),"-",max(len)), first=quantile(len, probs=.25),
+    median=median(len), third = quantile(len, probs=.75), mean = mean(len), 
+      var=var(len))
+kable(x=stat1, digits=2, col.names=c("Dose", "Supplement", "Range", "1st Quartile", 
+            "Median", "3rd Quartile", "Mean", "Variance"))
 ```
 
 Code for the table for the variances
